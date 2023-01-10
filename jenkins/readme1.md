@@ -63,3 +63,5 @@
         state: restarted
         daemon_reload: yes
         name: jenkins.service
+----
+*  ![preview](jenkins.png)        
