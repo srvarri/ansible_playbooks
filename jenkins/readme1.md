@@ -39,29 +39,29 @@
 * jenkins.yaml
 ------------------------------------------------------
 * ```
-     --- 
-- name: install the jenkins 
-  hosts: all 
-  become: yes 
-  tasks: 
-    - name: install openjdk11 
-      apt: 
-        name: openjdk-11-jdk 
-        update_cache: yes 
-        state: present
-    - name: download the wget url 
-      get_url:
-        url: https://updates.jenkins.io/download/war/2.384/jenkins.war 
-        dest: /home/devops
-        mode: "777"
-    - name: create service file
-      copy:
-        src: jenkins.srvice 
-        dest: /etc/systemd/system/jenkins.service
-    - name: restart the jenkins service
-      systemd:
-        state: restarted
-        daemon_reload: yes
-        name: jenkins.service
+ 
+        - name: install the jenkins 
+          hosts: all 
+          become: yes 
+          tasks: 
+            - name: install openjdk11 
+              apt: 
+                name: openjdk-11-jdk 
+                update_cache: yes 
+                state: present
+            - name: download the wget url 
+              get_url:
+                url: https://updates.jenkins.io/download/war/2.384/jenkins.war 
+                dest: /home/devops
+                mode: "777"
+            - name: create service file
+              copy:
+                src: jenkins.srvice 
+                dest: /etc/systemd/system/jenkins.service
+            - name: restart the jenkins service
+              systemd:
+                state: restarted
+                daemon_reload: yes
+                name: jenkins.service
 ----
 *  ![preview](jenkins.png)        
