@@ -1,0 +1,14 @@
+---
+- name: test inventory
+  hosts: ubuntu
+  tasks:
+    - name: print my variable
+      ansible.builtin.debug:
+        var: name
+
+
+# ansible -i hosts -m ping ubuntu
+
+# ssh-copy-id devops@localhost 
+
+# ansible-playbook -i hosts main.yaml

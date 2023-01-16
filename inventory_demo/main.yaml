@@ -1,0 +1,18 @@
+---
+- name: test inventory
+  hosts: all
+  tasks:
+    - name: print my variable
+      ansible.builtin.debug:
+        msg: "hello" 
+# ansible-playbook -i hosts --list-hosts main.yaml   
+
+# ansible -i hosts -m ping --list-hosts centos
+
+# ansible -i hosts -m ping --list-hosts all
+
+# ansible -i hosts -m ping --list-hosts ubuntu
+
+# ansible -i hosts -m ping --list-hosts all
+ 
+#  ansible -i hosts -m ping --list-hosts webservers
