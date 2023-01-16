@@ -1,0 +1,52 @@
+# ANSIBLE-PLAYBOOK FOR BOTH OS UBUNTU AND CENTOS 07
+---
+- name: install apache and php
+  hosts: all
+  become: yes
+  tasks:
+    - name: install apache2 and update
+      ansible.builtin.debug:
+        msg: update default packeges and install apache2
+    - name: install apache2 and update
+      ansible.builtin.package:
+        name:
+          - "{{ package_name1 }}"
+          - "{{ package_name2 }}"
+        state: present
+        update_cache: yes
+    - name: create content in info.php
+      ansible.builtin.debug:
+        msg: copy the contents of info.php into /var/www/html/info.php
+    - name: create content in info.php
+      ansible.builtin.copy:
+        src: info.php
+        dest: /var/www/html/info.php
+    - name: restart apache server
+      ansible.builtin.debug:
+        msg: start and enable the apache server
+    - name: restart server
+      ansible.builtin.systemd:
+        name: "{{ package_name1 }}"
+        state: started
+        enabled: yes
+      when: ansible_facts['distribution'] == "Ubuntu"
+    - name: restart httpd server
+      ansible.builtin.debug:
+        msg: start and enable the httpd server
+    - name: restart server
+      ansible.builtin.systemd:
+        name: "{{ package_name1 }}"
+        state: started
+        enabled: yes
+      when: ansible_facts['distribution'] == "CentOS"
+---
+all:
+  children:
+    webservers:
+      hosts:
+        172.31.27.227:
+          package_name1: apache2
+          package_name2: php
+        172.31.30.93:
+          package_name1: httpd
+          package_name2: php

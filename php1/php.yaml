@@ -1,0 +1,53 @@
+---
+- name: install apache server
+  become: yes
+  tasks:
+    - name: install apache on ubuntu
+      apt:
+        name: apache2
+        update_cache: yes
+        state: present
+      when: ansible_facts['distribution'] == "Ubuntu"
+      notify:
+        - enable and restart apache2
+    - name: install apache on centos
+      dnf:
+        name: httpd
+        state: present
+      notify:
+        - enable and restart httpd
+      when: ansible_facts['distribution'] == "Centos"
+    - name: install php modules
+      apt:
+        name:
+          - php
+          - libapache2-mod-php
+          - php-mysql
+        state: present
+      when: ansible_facts['distribution'] == "Ubuntu"
+      notify:
+        - enable and restart apache2
+    - name: install php modules on centos
+      dnf:
+        name:
+          - php
+          - php-mysqlnd
+        state: present
+      when: ansible_facts['distribution'] == "Centos"
+      notify:
+        - enable and restart apache2
+    - name: copy info.php
+      copy:
+        src: info.php
+        dest: /var/www/html/info.php    
+  handlers:
+    - name: enable and restart apache2
+      systemd:
+        name: apache2
+        enabled: yes
+        state: restarted
+    - name: enable and restart httpd
+      ansible.builtin.systemd:
+        name: httpd
+        enabled: yes
+        state: restarted

@@ -1,0 +1,26 @@
+---
+- name: inatall apache and php
+  hosts: all
+  become: yes
+  tasks:
+    - name: install apache and ubuntu package
+      apt:
+        name: apache2
+        update_cache: yes
+        state: present 
+    - name: install php package
+      apt: 
+        name:
+          - php
+          - libapache2-mod-php
+          - php-mysql
+        state: present  
+    - name: copy the info.php
+      copy: 
+        src: info.php
+        dest: /var/www/html/info.php
+    - name: ensure the service 
+      systemd: 
+        name: apache2
+        enabled: yes
+        state: started

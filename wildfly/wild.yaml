@@ -1,0 +1,66 @@
+---
+- name: install widlfly
+  hosts: all
+  become: yes
+  tasks: 
+    - name: inastll java
+      apt:
+        name: openjdk-11-jdk
+        update_cache: yes
+        state: present
+    - name: create a wildfly group
+      group:
+        name: wildfly
+        state: present
+    - name: create a wildfly user
+      user: 
+        name: wildfly 
+        group: wildfly
+        home: /opt/wildfly
+        shell: /sbin/nologin
+        system: true
+        state: present
+    - name: Download the WildFly using wget
+      get_url:
+        url: https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz
+        dest: /tmp
+        mode: '777'
+    - name: Unarchive (un_tar) a file that is already on the remote machine
+      unarchive:
+        src: /tmp/wildfly-22.0.1.Final.tar.gz
+        remote_src: yes
+        dest: /opt/wildfly
+    - name: change permissions  
+      file:
+        dest: /opt/wildfly
+        recurse: true
+        owner: wildfly
+        group: wildfly
+        state: directory
+    - name: Creating a directory
+      file:
+         path : /etc/wildfly
+         state: directory 
+         mode: '777'
+    - name: Copy the wildfly.conf
+      copy:
+       src: /opt/wildfly/wildfly-22.0.1.Final/docs/contrib/scripts/systemd/wildfly.conf
+       dest: /etc/wildfly/
+       remote_src: yes
+    - name: copy the launch.sh
+      copy:
+       src: /opt/wildfly/wildfly-22.0.1.Final/docs/contrib/scripts/systemd/launch.sh
+       dest: /opt/wildfly/bin/
+       remote_src: yes
+    - name: add execute permissions to shell files
+      ansible.builtin.command: sudo sh -c 'chmod +x /opt/wildfly/bin/*.sh' 
+    - name: Copying the wildfly.service
+      ansible.builtin.copy:
+        src: /opt/wildfly/wildfly-22.0.1.Final/docs/contrib/scripts/systemd/wildfly.service
+        dest: /etc/systemd/system/
+        remote_src: yes
+    - name: Start wildfly Service
+      ansible.builtin.systemd:
+        name : wildfly
+        state: started
+        enabled: yes   
