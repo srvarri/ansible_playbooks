@@ -1,0 +1,11 @@
+---
+- name: install apache server on ubuntu
+  hosts: all # your node pvt_ip
+  become: yes # all sudo cmmd's
+  tasks: 
+  # sudo apt install apache2
+    - name: install apache2
+      apt: 
+        name: apache2
+        update_cache: yes # sudo apt update
+        state: present # it was taking default

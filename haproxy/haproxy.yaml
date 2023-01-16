@@ -1,0 +1,85 @@
+--- 
+- name: install haproxy 
+  become: yes
+  hosts: all
+  tasks: 
+    - name: install apache2 web-server1 and web-server2
+      apt:
+        name: apache2
+        update_cache: yes
+        state: present 
+      when: ansible_facts ["hostname"] != "ip-172-31-13-224"
+    - name: enabel to start service 
+      systemd: 
+        name: apache2
+        state: started
+        enabled: yes 
+      when: ansible_facts ["hostname"] != "ip-172-31-13-224" 
+    - name: copy the content 
+      copy: 
+        content: HAproxy 172.31.13.224  
+        dest: /etc/hosts
+      when: ansible_facts ["hostname"] != "ip-172-31-13-224"
+    - name: copy the index.html web-server1 
+      copy:
+        src: index.html 
+        dest: /var/www/html/index.html 
+        #remote_src: true
+      when: ansible_facts["hostname"] == "ip-172-31-1-212" 
+    - name: copy the index.html
+      copy: 
+        src: ./index.html 
+        dest: /var/www/html/index.html
+        #remote_src: true
+      when: ansible_facts["hostname"] == "ip-172-31-42-235" 
+    - name: copy to hostname ips
+      copy: 
+        src: hostnames
+        dest: /etc/hosts 
+        remote_src: true
+      when: ansible_facts["hostname"] == "ip-172-31-13-224" 
+    - name: install the haproxy 
+      apt: 
+       name: haproxy 
+       update_cache: yes 
+       state: present
+      when: ansible_facts["hostname"] == "ip-172-31-13-224"  
+    - name: insert the configuration date 
+      blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        block: |
+          frontend web-frontend
+            bind 172.31.13.224:80
+            mode http
+            default_backend web-backend
+          backend web-backend
+            balance roundrobin
+            server web-server1 172.31.1.212:80 check
+            server web-server2 172.31.42.235:80 check
+          listen stats
+          bind 172.31.13.224:8080
+          mode http
+          option forwardfor
+          option httpclose
+          stats enable
+          stats show-legends
+          stats refresh 5s
+          stats uri /stats
+          stats realm Haproxy\ Statistics
+          stats auth ubuntu:ubuntu            #Login User and Password for the monitoring
+          stats admin if TRUE
+          default_backend web-backend 
+      when: ansible_facts["hostname"] == "ip-172-31-13-224"
+    # - name: Insert the configuration data using a local file and validate it
+    #   ansible.builtin.blockinfile:
+    #     block: "{{ lookup('ansible.builtin.file', 'haproxy.config') }}"
+    #     path: /etc/haproxy/haproxy.cfg
+    #     create: yes
+    #     state: present
+    #   when: ansible_facts["hostname"] == "ip-172-31-18-79"  
+    - name: enabel to start service 
+      systemd: 
+        name: haproxy
+        state: started
+        enabled: yes 
+      when: ansible_facts ["hostname"] == "ip-172-31-13-224" 
