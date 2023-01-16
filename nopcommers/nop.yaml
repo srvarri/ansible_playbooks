@@ -1,0 +1,66 @@
+---
+- name: install nop commerce on ubuntu
+  become: yes
+  hosts: all
+  tasks:
+    - name: dowload the debbian file
+      get_url:
+        url: https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb 
+        dest: /tmp/packages-microsoft-prod.deb     
+    - name: install dpkg package 
+      apt:
+        deb: /tmp/packages-microsoft-prod.deb 
+    - name: install aspnetcore-runtime-7.0
+      apt:
+        name: aspnetcore-runtime-7.0
+        update_cache: yes
+        state: present
+    - name: install nginx
+      apt: 
+        name: nginx
+        update_cache: yes
+        state: present    
+    - name: ensure the service 
+      systemd: 
+        name: nginx
+        enabled: yes
+        state: started
+    - name: create a directory 
+      file: 
+        path: /var/www/nopCommerce
+        state: directory
+    - name: dowload the wget package 
+      get_url:
+        url: https://github.com/nopSolutions/nopCommerce/releases/download/release-4.60.0/nopCommerce_4.60.0_NoSource_linux_x64.zip
+        dest: /var/www/nopCommerce
+    - name: install the unzip
+      apt: 
+        name: unzip
+        state: present 
+        update_cache: yes
+    - name: unzip the file 
+      unarchive: 
+        src: /var/www/nopCommerce/nopCommerce_4.60.0_NoSource_linux_x64.zip
+        remote_src: true
+        dest: /var/www/nopCommerce 
+    - name: create directory 
+      file: 
+        path: /bin 
+        state: directory
+    - name: create directory 
+      file: 
+        path: /logs 
+        state: directory    
+    - name: copy the service file  
+      copy: 
+        src: nopCommerce.service  
+        dest: /etc/systemd/system/nopCommerce.service
+        remote_src: yes 
+    - name: service start 
+      service: 
+        name: nopCommerce.service
+        state: started
+    - name: restart nginx
+      systemd: 
+        name: nginx
+        state: restarted 
