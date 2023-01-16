@@ -1,0 +1,21 @@
+---
+- name: install utilty softwares
+  become: yes
+  hosts: all
+  vars:
+    apache_package: httpd
+  tasks:
+    - name: install git
+      ansible.builtin.package:
+        name: git
+        state: present
+    - name: install apache
+      ansible.builtin.package:
+        name: "{{ apache_package }}"
+        state: present     
+# sudo yum install git 
+# sudo apt install git 
+# sudo yum install httpd 
+# sudo apt install apache2   
+# sudo yum search openjdk  
+      #java-11-opejdk-devel
